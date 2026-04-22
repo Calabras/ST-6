@@ -1,0 +1,77 @@
+package com.mycompany.app;
+
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+class TicTacToePanel extends JPanel implements ActionListener {
+
+    private final Game game;
+    private final TicTacToeCell[] cells = new TicTacToeCell[9];
+
+    private void createCell(int num, int x, int y) {
+        cells[num] = new TicTacToeCell(num, x, y);
+        cells[num].addActionListener(this);
+        add(cells[num]);
+    }
+
+    TicTacToePanel(GridLayout layout) {
+        super(layout);
+        createCell(0, 0, 0);
+        createCell(1, 1, 0);
+        createCell(2, 2, 0);
+        createCell(3, 0, 1);
+        createCell(4, 1, 1);
+        createCell(5, 2, 1);
+        createCell(6, 0, 2);
+        createCell(7, 1, 2);
+        createCell(8, 2, 2);
+        game = new Game();
+        game.cplayer = game.player1;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        game.player1.move = -1;
+        game.player2.move = -1;
+
+        int i = 0;
+        for (TicTacToeCell jb : cells) {
+            if (ae.getSource() == jb) {
+                jb.setMarker(Character.toString(game.cplayer.symbol));
+            }
+            game.board[i++] = jb.getMarker();
+        }
+        if (game.cplayer == game.player1) {
+
+            game.player2.move = game.miniMax(game.board, game.player2);
+            game.nmove = game.player2.move;
+            game.symbol = game.player2.symbol;
+            game.cplayer = game.player2;
+            if (game.player2.move > 0) {
+                cells[game.player2.move - 1].doClick();
+            }
+        } else {
+            game.nmove = game.player1.move;
+            game.symbol = game.player1.symbol;
+            game.cplayer = game.player1;
+        }
+
+        game.state = game.checkState(game.board);
+
+        if (game.state == State.XWIN) {
+            JOptionPane.showMessageDialog(null, "X wins", "Result", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+
+        } else if (game.state == State.OWIN) {
+            JOptionPane.showMessageDialog(null, "O wins", "Result", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+        } else if (game.state == State.DRAW) {
+            JOptionPane.showMessageDialog(null, "Draw", "Result", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+        }
+    }
+}
